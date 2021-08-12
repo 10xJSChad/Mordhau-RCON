@@ -2,15 +2,20 @@ import struct
 import socket
 import threading
 import select
+import mordhau_commands
 
 class client:
     s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    mordhau = mordhau_commands.mordhau_commands()
+
     listening = False
     queue = []
 
     def __init__(self, ip, port):
         self.ip = ip
         self.port = port
+        self.test = self
+        self.mordhau.socket = self
 
     def startListen(self):
         self.listening = True
@@ -19,7 +24,6 @@ class client:
 
     def __listen(self):
         while True:
-            print(self.queue)
             self.queue.append(self.decode_packet())
         
     def connect(self, password):
@@ -30,6 +34,9 @@ class client:
         self.s.send(self.build_packet(type, body))
         if(not self.listening):
             return(self.decode_packet())
+
+    def run(self, body):
+        return self.send(2, body)
 
     def decode_packet(self):
         in_data = ""
