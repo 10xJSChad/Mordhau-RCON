@@ -1,5 +1,4 @@
-import config
-from library.client import client as rconClient
+rom library.client import client as rconClient
 
 client = rconClient(shell_mode=True)
 client.connect(use_json=False)
