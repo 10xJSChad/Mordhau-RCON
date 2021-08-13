@@ -3,6 +3,7 @@ import socket
 import threading
 import select
 import library.mordhau_commands as mordhau_commands
+import library.mordhau_commands_json as mordhau_commands_json
 import time
 import config
 import json
@@ -24,13 +25,15 @@ class client:
     def start_listen(self, keepAlive=True):
         self.listening = True
         x, y = threading.Thread(target=self.__listen), threading.Thread(target=self.__keep_alive)
-        x.start(); y.start()
+        x.start()
+        if(keepAlive): y.start()
 
     def __keep_alive(self):
         while True:
             if(not self.json):
                 self.run("alive")
                 time.sleep(110)
+                #ADD JSON SUPPORT
 
     def __listen(self):
         while True:
@@ -43,6 +46,8 @@ class client:
             self.send(3, config.password)
         else:
             self.send(3, json.dumps({ "password":config.password }))
+            self.mordhau = mordhau_commands_json.mordhau_commands()
+            self.mordhau.socket = self
         
     def send(self, type, body):
         self.s.send(self.build_packet(type, body))
@@ -64,7 +69,7 @@ class client:
 
     def read_packet(self, length):
         data = b""
-        while len(data) < length:
+        while(len(data) < length):
             data += self.s.recv(length - len(data))
         return data
 
